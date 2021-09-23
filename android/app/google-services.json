@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1036358798175",
+    "project_id": "socialapp-50819",
+    "storage_bucket": "socialapp-50819.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1036358798175:android:b56e09447c7a6e25fe44ea",
+        "android_client_info": {
+          "package_name": "com.nirmal.socialapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1036358798175-il77796kh1u58ijkjcsm65gps9qj3gfn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBfArz9u41fxJdKPYa3bmQs1gWVBtreoTQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1036358798175-il77796kh1u58ijkjcsm65gps9qj3gfn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
