@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "1036358798175-6890h9nm821adgu31ra25amjeft3fspi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nirmal.socialapp",
+            "certificate_hash": "76868bf49f43c1c6980986effe8a0d4705827355"
+          }
+        },
+        {
           "client_id": "1036358798175-il77796kh1u58ijkjcsm65gps9qj3gfn.apps.googleusercontent.com",
           "client_type": 3
         }

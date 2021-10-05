@@ -2,15 +2,18 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:socialapp/screens/activity_feed.dart';
+import 'package:socialapp/screens/create_account.dart';
 import 'package:socialapp/screens/profile.dart';
 import 'package:socialapp/screens/search.dart';
 import 'package:socialapp/screens/timeline.dart';
 import 'package:socialapp/screens/upload.dart';
-import 'package:socialapp/widgets/progress.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
+final DateTime timeStamp = DateTime.now();
+final userReference = FirebaseFirestore.instance.collection('users');
 final GoogleSignIn googleSignIn = GoogleSignIn();
-FirebaseAuth auth = FirebaseAuth.instance;
+//FirebaseAuth auth = FirebaseAuth.instance;
 
 class HomePage extends StatefulWidget {
   @override
@@ -36,23 +39,16 @@ class _HomePageState extends State<HomePage> {
       print('the error occur while signin  is $error');
     });
     //if user is already login the this will directly move to homepage
-    googleSignIn.signInSilently().whenComplete(() => DismissAction);
+     googleSignIn.signInSilently(suppressErrors: false).then((account) {
+      handlingSignIn(account);
+    }).catchError((err) {
+      print('Error signing in: $err');
+    });
   }
-
-  @override
-  void dispose() {
-    pageController.dispose();
-    super.dispose();
-  }
-
-  handelingUser(area) {
-    if (area != null) {
-      print('hello buddy');
-    }
-  }
-
-//to check user is logedIn or not
+  
+  //to check user is logedIn or not
   handlingSignIn(accountt) {
+    createUserInFlutterFirestore();
     if (accountt != null) {
       print('User sign in: $accountt');
       setState(() {
@@ -66,15 +62,58 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+
+  //method for creating user in firebase database ..firestore
+  createUserInFlutterFirestore() async {
+    //check if the user exist in user collectiton in firestore (associated to their id)
+    final GoogleSignInAccount? currentUser = googleSignIn.currentUser;
+    final DocumentSnapshot doc = await userReference.doc(currentUser?.id).get();
+
+    //if user is not exist then navigate them to the create account page
+    if (!doc.exists) {
+      final username = await Navigator.push(context,
+          MaterialPageRoute(builder: (BuildContext context) {
+        return CreateAccount();
+      }));
+
+      //get username from create account page and use it to make new user document in user collection
+      userReference.doc(currentUser!.id).set({
+        "id": currentUser.id,
+        "username": username,
+        'photoUrl': currentUser.photoUrl,
+        'email': currentUser.email,
+        'displayName': currentUser.displayName,
+        "bio": '',
+        "timestamp": timeStamp
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    pageController.dispose();
+
+    super.dispose();
+  }
+
+  handelingUser(area) {
+    if (area != null) {
+      print('hello buddy');
+    }
+  }
+
+
 // function for login using google sign in
   login() async {
-    circularProgress();
+    //  circularProgress();
     await googleSignIn.signIn();
   }
 
 // function for logout
   signOut() async {
-    googleSignIn.signOut();
+    await googleSignIn.signOut();
+   
+    setState(() {});
   }
 
 //function for page Change on PageView
@@ -100,7 +139,13 @@ class _HomePageState extends State<HomePage> {
         child: Scaffold(
       body: PageView(
         children: [
-          Timeline(),
+          // Timeline(),
+          TextButton(
+            onPressed: () {
+              signOut();
+            },
+            child: Text('signout'),
+          ),
           ActivityFeed(),
           Upload(),
           Search(),
