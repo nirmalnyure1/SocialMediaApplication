@@ -12,7 +12,11 @@ class _CreateAccountState extends State<CreateAccount> {
   final _formKey = GlobalKey<FormState>();
 
   void submit() {
-    _formKey.currentState!.save();
+    final form = _formKey.currentState;
+    if (form!.validate()) {
+      form.save();
+    }
+
     Navigator.pop(context, username);
   }
 
@@ -39,10 +43,20 @@ class _CreateAccountState extends State<CreateAccount> {
                     vertical: 20.0, horizontal: 40.0),
                 child: Container(
                   child: Form(
+                      autovalidateMode: AutovalidateMode.always,
                       key: _formKey,
                       child: TextFormField(
                         onSaved: (val) {
                           username = val;
+                        },
+                        validator: (val) {
+                          if (val!.trim().length < 3 || val.isEmpty) {
+                            return 'username must be move  then 3';
+                          } else if (val.trim().length > 12) {
+                            return 'username must be less then 12';
+                          } else {
+                            return null;
+                          }
                         },
                         maxLines: 1,
                         maxLength: 40,

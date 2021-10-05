@@ -1,15 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:socialapp/models/user.dart';
 import 'package:socialapp/screens/activity_feed.dart';
 import 'package:socialapp/screens/create_account.dart';
 import 'package:socialapp/screens/profile.dart';
 import 'package:socialapp/screens/search.dart';
-import 'package:socialapp/screens/timeline.dart';
 import 'package:socialapp/screens/upload.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+UserModel? currentUser;
 final DateTime timeStamp = DateTime.now();
 final userReference = FirebaseFirestore.instance.collection('users');
 final GoogleSignIn googleSignIn = GoogleSignIn();
@@ -24,7 +25,6 @@ class _HomePageState extends State<HomePage> {
   bool accountAuth = false;
   late PageController pageController = PageController();
   int pageIndex = 0;
-  late Hari hari;
 
   @override
   void initState() {
@@ -39,13 +39,13 @@ class _HomePageState extends State<HomePage> {
       print('the error occur while signin  is $error');
     });
     //if user is already login the this will directly move to homepage
-     googleSignIn.signInSilently(suppressErrors: false).then((account) {
+    googleSignIn.signInSilently(suppressErrors: false).then((account) {
       handlingSignIn(account);
     }).catchError((err) {
       print('Error signing in: $err');
     });
   }
-  
+
   //to check user is logedIn or not
   handlingSignIn(accountt) {
     createUserInFlutterFirestore();
@@ -62,12 +62,11 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-
   //method for creating user in firebase database ..firestore
   createUserInFlutterFirestore() async {
     //check if the user exist in user collectiton in firestore (associated to their id)
-    final GoogleSignInAccount? currentUser = googleSignIn.currentUser;
-    final DocumentSnapshot doc = await userReference.doc(currentUser?.id).get();
+    final GoogleSignInAccount? user = googleSignIn.currentUser;
+    DocumentSnapshot doc = await userReference.doc(user?.id).get();
 
     //if user is not exist then navigate them to the create account page
     if (!doc.exists) {
@@ -77,16 +76,22 @@ class _HomePageState extends State<HomePage> {
       }));
 
       //get username from create account page and use it to make new user document in user collection
-      userReference.doc(currentUser!.id).set({
-        "id": currentUser.id,
+      userReference.doc(user!.id).set({
+        "id": user.id,
         "username": username,
-        'photoUrl': currentUser.photoUrl,
-        'email': currentUser.email,
-        'displayName': currentUser.displayName,
+        'photoUrl': user.photoUrl,
+        'email': user.email,
+        'displayName': user.displayName,
         "bio": '',
         "timestamp": timeStamp
       });
+
+      doc = await userReference.doc(user.id).get();
     }
+
+    currentUser = UserModel.fromDocument(doc);
+    print(currentUser);
+    print(currentUser!.username);
   }
 
   @override
@@ -102,7 +107,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-
 // function for login using google sign in
   login() async {
     //  circularProgress();
@@ -112,7 +116,7 @@ class _HomePageState extends State<HomePage> {
 // function for logout
   signOut() async {
     await googleSignIn.signOut();
-   
+
     setState(() {});
   }
 
@@ -230,5 +234,3 @@ class _HomePageState extends State<HomePage> {
     return accountAuth ? buildScreen() : unAuthScreen();
   }
 }
-
-class Hari {}
