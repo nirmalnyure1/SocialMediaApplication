@@ -115,6 +115,7 @@ class _HomePageState extends State<HomePage> {
 
 // function for logout
   signOut() async {
+  accountAuth=false;
     await googleSignIn.signOut();
 
     setState(() {});
