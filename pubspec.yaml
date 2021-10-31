@@ -36,14 +36,14 @@ dev_dependencies:
   firebase_core: ^1.4.0
   firebase_messaging: ^10.0.4
   firebase_storage: ^10.0.1
-  flutter_svg: ^0.22.0
+  flutter_svg: ^0.23.0+1
   flutter_test:
     sdk: flutter
-  geolocator: ^7.4.0
-  google_sign_in: ^5.0.7
+
+  google_sign_in: ^5.2.1
   image: ^3.0.2
   image_picker: ^0.8.3+1
-  path_provider: ^2.0.2
+  path_provider: ^2.0.6
   timeago: ^3.1.0
   uuid: ^3.0.4
 

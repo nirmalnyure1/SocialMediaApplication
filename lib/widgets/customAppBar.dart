@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
-AppBar customAppBar(context, {bool ifAppTitle = false, title}) {
+AppBar customAppBar(context,
+    {bool ifAppTitle = false, title, removeBackButton = false}) {
   return AppBar(
+    automaticallyImplyLeading: removeBackButton ? false : true,
     title: Text(
       ifAppTitle ? "PhotoLab" : title,
       style: TextStyle(

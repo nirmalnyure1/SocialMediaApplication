@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -7,14 +8,10 @@ import 'package:socialapp/screens/create_account.dart';
 import 'package:socialapp/screens/profile.dart';
 import 'package:socialapp/screens/search.dart';
 import 'package:socialapp/screens/upload.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
-UserModel? currentUser;
-final DateTime timeStamp = DateTime.now();
 final userReference = FirebaseFirestore.instance.collection('users');
 final GoogleSignIn googleSignIn = GoogleSignIn();
-//FirebaseAuth auth = FirebaseAuth.instance;
+UserModel? currentUser;
 
 class HomePage extends StatefulWidget {
   @override
@@ -22,6 +19,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final DateTime timeStamp = DateTime.now();
   bool accountAuth = false;
   late PageController pageController = PageController();
   int pageIndex = 0;
@@ -33,7 +31,7 @@ class _HomePageState extends State<HomePage> {
       // viewportFraction: 0.8,
     );
     super.initState();
-    googleSignIn.onCurrentUserChanged.listen((account) {
+    googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
       handlingSignIn(account);
     }, onError: (error) {
       print('the error occur while signin  is $error');
@@ -115,7 +113,7 @@ class _HomePageState extends State<HomePage> {
 
 // function for logout
   signOut() async {
-  accountAuth=false;
+    accountAuth = false;
     await googleSignIn.signOut();
 
     setState(() {});

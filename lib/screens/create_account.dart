@@ -1,5 +1,6 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:socialapp/utils/myTheme.dart';
 import 'package:socialapp/widgets/customAppBar.dart';
 
 class CreateAccount extends StatefulWidget {
@@ -8,6 +9,7 @@ class CreateAccount extends StatefulWidget {
 }
 
 class _CreateAccountState extends State<CreateAccount> {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   String? username;
   final _formKey = GlobalKey<FormState>();
 
@@ -15,15 +17,27 @@ class _CreateAccountState extends State<CreateAccount> {
     final form = _formKey.currentState;
     if (form!.validate()) {
       form.save();
-    }
+      SnackBar snackBar = SnackBar(
+        content: Text('welcome $username!'),
+      );
 
-    Navigator.pop(context, username);
+      _scaffoldKey.currentState!.showSnackBar(snackBar);
+      Timer(Duration(seconds: 2), () {
+        Navigator.pop(context, username);
+      });
+    }
   }
 
   @override
   Widget build(BuildContext parentContext) {
     return Scaffold(
-        appBar: customAppBar(context, ifAppTitle: false, title: 'SET PROFILE'),
+        key: _scaffoldKey,
+        appBar: customAppBar(
+          context,
+          ifAppTitle: false,
+          title: 'SET PROFILE',
+          removeBackButton: true,
+        ),
         body: Container(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -68,18 +82,7 @@ class _CreateAccountState extends State<CreateAccount> {
                           hintText: 'username must be unique',
                           fillColor: Colors.red,
                           focusColor: Colors.green,
-                          border: OutlineInputBorder(
-                              // borderRadius: BorderRadius.circular(20),
-                              ),
-                          // enabledBorder: OutlineInputBorder(
-                          //   borderRadius: BorderRadius.circular(20),
-                          // ),
-                          // focusedBorder: OutlineInputBorder(
-                          //   borderRadius: BorderRadius.circular(20.0),
-                          //   borderSide: const BorderSide(
-                          //     color: Colors.green,
-                          //   ),
-                          // ),
+                          border: OutlineInputBorder(),
                         ),
                       )),
                 ),
