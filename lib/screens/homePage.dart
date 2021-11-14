@@ -8,9 +8,18 @@ import 'package:socialapp/screens/create_account.dart';
 import 'package:socialapp/screens/profile.dart';
 import 'package:socialapp/screens/search.dart';
 import 'package:socialapp/screens/upload.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
+
+
+final firebase_storage.Reference ref =
+  firebase_storage.FirebaseStorage.instance.ref();
 final userReference = FirebaseFirestore.instance.collection('users');
+final postReference = FirebaseFirestore.instance.collection('post');
 final GoogleSignIn googleSignIn = GoogleSignIn();
+final DateTime timeStamp = DateTime.now();
+//currentUser store the user data which will be user all over the application
+//UserModel is the model that we created for storing all the data
 UserModel? currentUser;
 
 class HomePage extends StatefulWidget {
@@ -19,7 +28,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final DateTime timeStamp = DateTime.now();
+  
   bool accountAuth = false;
   late PageController pageController = PageController();
   int pageIndex = 0;
@@ -150,7 +159,7 @@ class _HomePageState extends State<HomePage> {
             child: Text('signout'),
           ),
           ActivityFeed(),
-          Upload(),
+          Upload(currentUser: currentUser),
           Search(),
           Profile(),
         ],

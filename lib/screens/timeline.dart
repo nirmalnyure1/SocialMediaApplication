@@ -1,6 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:socialapp/widgets/customAppBar.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:socialapp/widgets/progressbar.dart';
 
 //FirebaseFirestore firestoreinstance = FirebaseFirestore.instance;
@@ -15,7 +15,6 @@ class _TimelineState extends State<Timeline> {
   List? user = [];
   @override
   void initState() {
-   
     super.initState();
   }
 
@@ -77,16 +76,16 @@ class _TimelineState extends State<Timeline> {
   //   doc.docs.forEach((snapshot) {
   //     print(snapshot.data());
   //   });
-
+  //
   //   // doc.data();
   // }
-
+  //
   // getDocumentById() async {
   //   final id = 'OEFvlcWGVNJef1UcWKZF';
   //   final DocumentSnapshot doc = await userData.doc(id).get();
   //   print(doc.exists);
   // }
-
+  //
   // getUsersByOrder() async {
   //   final QuerySnapshot document =
   //       await userData.orderBy("postCount", descending: true).get();
