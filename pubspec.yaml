@@ -41,7 +41,8 @@ dev_dependencies:
   flutter_svg: ^0.23.0+1
   flutter_test:
     sdk: flutter
-
+  geolocator: ^7.7.1
+  geocode: ^1.0.1
   google_sign_in: ^5.2.1
   image: ^3.0.2
   image_picker: ^0.8.3+1

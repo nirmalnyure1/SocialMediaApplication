@@ -8,8 +8,9 @@ import 'package:socialapp/screens/homePage.dart';
 import 'package:socialapp/widgets/progressbar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:image/image.dart' as Imge;
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:uuid/uuid.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocode/geocode.dart';
 
 class Upload extends StatefulWidget {
   final UserModel? currentUser;
@@ -166,6 +167,29 @@ class _UploadState extends State<Upload> {
     });
   }
 
+  getUserLocation() async {
+    // LocationPermission permission;
+    // permission = await Geolocator.checkPermission();
+    // if(permission==LocationPermission.denied){
+    //   permission = await Geolocator.requestPermission();
+    // }
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.medium);
+
+      GeoCode geoCode = GeoCode();
+      Address address = await geoCode.reverseGeocoding(
+          latitude: position.latitude, longitude: position.longitude);
+      print(address.toString());
+      print(
+          "${address.streetAddress}, ${address.city}, ${address.countryName}");
+      locationController.text =
+          "${address.streetAddress}, ${address.city},${address.countryName}";
+    } catch (e) {
+      print("e");
+    }
+  }
+
   buildUploadForm() {
     return Scaffold(
       appBar: AppBar(
@@ -249,6 +273,7 @@ class _UploadState extends State<Upload> {
               ),
               onPressed: () {
                 print("button is pressed");
+                getUserLocation();
               },
               child: Text(
                 "choose your location",

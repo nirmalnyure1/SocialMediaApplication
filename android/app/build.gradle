@@ -27,7 +27,7 @@ apply plugin: 'com.google.gms.google-services'
 
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 31
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
@@ -42,6 +42,7 @@ android {
         versionName flutterVersionName
         // Enabling multidex support.
         multiDexEnabled true
+       
     }
 
     buildTypes {

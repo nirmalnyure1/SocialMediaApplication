@@ -95,7 +95,7 @@ class _HomePageState extends State<HomePage> {
 
       doc = await userReference.doc(user.id).get();
     }
-
+//des
     currentUser = UserModel.fromDocument(doc);
     print(currentUser);
     print(currentUser!.username);
@@ -161,7 +161,7 @@ class _HomePageState extends State<HomePage> {
           ActivityFeed(),
           Upload(currentUser: currentUser),
           Search(),
-          Profile(),
+          Profile(profileId:currentUser?.id),
         ],
         controller: pageController,
         onPageChanged: onPagechange,
