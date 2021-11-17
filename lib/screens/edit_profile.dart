@@ -94,6 +94,14 @@ class _EditProfileState extends State<EditProfile> {
     }
   }
 
+  logout() async {
+    //accountAuth = false;
+    await googleSignIn.signOut();
+
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => HomePage()));
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -151,6 +159,7 @@ class _EditProfileState extends State<EditProfile> {
                         ElevatedButton(
                           onPressed: () {
                             print("logout pressed");
+                            logout();
                           },
                           child: Text("logout"),
                         )

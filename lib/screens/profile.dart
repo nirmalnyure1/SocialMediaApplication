@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:socialapp/models/user.dart';
 import 'package:socialapp/screens/edit_profile.dart';
 import 'package:socialapp/screens/homePage.dart';
+import 'package:socialapp/screens/post_screen.dart';
 import 'package:socialapp/widgets/customAppBar.dart';
 import 'package:socialapp/widgets/progressbar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Profile extends StatefulWidget {
   final String? profileId;
@@ -16,6 +18,32 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   final String currentUserId = currentUser!.id.toString();
+  bool isLoadingPost = false;
+  int postCount = 0;
+  List<Post>? posts = [];
+  @override
+  void initState() {
+    super.initState();
+    getProfilePost();
+  }
+
+  getProfilePost() async {
+    setState(() {
+      isLoadingPost = true;
+    });
+
+    QuerySnapshot snapshot = await postReference
+        .doc(widget.profileId)
+        .collection("userPost")
+        .orderBy("timestamp", descending: true)
+        .get();
+    setState(() {
+      isLoadingPost = false;
+      postCount = snapshot.docs.length;
+      posts = snapshot.docs.map((e) => Post.fromDocument(e)).toList();
+      print(posts);
+    });
+  }
 
 //edit profile function
   editProfile() {
@@ -113,7 +141,7 @@ class _ProfileState extends State<Profile> {
                         mainAxisSize: MainAxisSize.max,
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: <Widget>[
-                          buildCountColumn("post", 0),
+                          buildCountColumn("post", postCount),
                           buildCountColumn("followers", 0),
                           buildCountColumn("following", 1),
                         ],
@@ -150,13 +178,30 @@ class _ProfileState extends State<Profile> {
     );
   }
 
+  buildProfilePost() {
+    if (isLoadingPost) {
+      return circularProgress();
+    }
+    return Column(
+      children: posts!,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: customAppBar(context, ifAppTitle: false, title: 'Profile'),
       body: ListView(
-        children: <Widget>[
+        children: [
           buildProfileHeader(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Divider(
+              height: 10.0,
+              color: Colors.blue,
+            ),
+          ),
+          buildProfilePost(),
         ],
       ),
     );

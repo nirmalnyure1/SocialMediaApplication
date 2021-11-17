@@ -10,10 +10,8 @@ import 'package:socialapp/screens/search.dart';
 import 'package:socialapp/screens/upload.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
-
-
 final firebase_storage.Reference ref =
-  firebase_storage.FirebaseStorage.instance.ref();
+    firebase_storage.FirebaseStorage.instance.ref();
 final userReference = FirebaseFirestore.instance.collection('users');
 final postReference = FirebaseFirestore.instance.collection('post');
 final GoogleSignIn googleSignIn = GoogleSignIn();
@@ -28,7 +26,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  
   bool accountAuth = false;
   late PageController pageController = PageController();
   int pageIndex = 0;
@@ -41,22 +38,22 @@ class _HomePageState extends State<HomePage> {
     );
     super.initState();
     googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
-      handlingSignIn(account);
+      handlingSignIn(account!);
     }, onError: (error) {
       print('the error occur while signin  is $error');
     });
     //if user is already login the this will directly move to homepage
     googleSignIn.signInSilently(suppressErrors: false).then((account) {
-      handlingSignIn(account);
+      handlingSignIn(account!);
     }).catchError((err) {
       print('Error signing in: $err');
     });
   }
 
   //to check user is logedIn or not
-  handlingSignIn(accountt) {
-    createUserInFlutterFirestore();
+  handlingSignIn(GoogleSignInAccount accountt) {
     if (accountt != null) {
+      createUserInFlutterFirestore();
       print('User sign in: $accountt');
       setState(() {
         accountAuth = true;
@@ -161,7 +158,7 @@ class _HomePageState extends State<HomePage> {
           ActivityFeed(),
           Upload(currentUser: currentUser),
           Search(),
-          Profile(profileId:currentUser?.id),
+          Profile(profileId: currentUser?.id),
         ],
         controller: pageController,
         onPageChanged: onPagechange,
