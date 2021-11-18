@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:socialapp/models/user.dart';
 import 'package:socialapp/screens/homePage.dart';
+import 'package:socialapp/widgets/custom_image.dart';
 import 'package:socialapp/widgets/progressbar.dart';
 
 class Post extends StatefulWidget {
@@ -112,7 +113,8 @@ class _PostState extends State<Post> {
               onPressed: () {
                 print("delete post");
               },
-              icon: Icon(Icons.delete),
+              icon: Icon(Icons.delete_sweep_outlined),
+              color: Colors.red,
             ),
           ),
         );
@@ -129,12 +131,8 @@ class _PostState extends State<Post> {
         alignment: Alignment.center,
         children: [
           Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Image.network(
-              mediaUrl.toString(),
-              fit: BoxFit.cover,
-            ),
-          ),
+              padding: const EdgeInsets.all(10.0),
+              child: cachedNetworkImage(mediaUrl)),
         ],
       ),
     );
@@ -149,15 +147,18 @@ class _PostState extends State<Post> {
           Row(
             children: <Widget>[
               IconButton(
-                  onPressed: () {
-                    print("love pressed");
-                  },
-                  icon: Icon(Icons.favorite)),
+                onPressed: () {
+                  print("love pressed");
+                },
+                icon: Icon(Icons.favorite),
+                color: Colors.red,
+              ),
               IconButton(
                   onPressed: () {
                     print("comment pressed");
                   },
-                  icon: Icon(Icons.chat)),
+                  icon: Icon(Icons.chat),
+                  color: Colors.blue),
             ],
           ),
           Text("$likeCounts likes"),

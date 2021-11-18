@@ -4,6 +4,7 @@ import 'package:socialapp/screens/edit_profile.dart';
 import 'package:socialapp/screens/homePage.dart';
 import 'package:socialapp/screens/post_screen.dart';
 import 'package:socialapp/widgets/customAppBar.dart';
+import 'package:socialapp/widgets/post_tile.dart';
 import 'package:socialapp/widgets/progressbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -21,6 +22,9 @@ class _ProfileState extends State<Profile> {
   bool isLoadingPost = false;
   int postCount = 0;
   List<Post>? posts = [];
+
+  //post orientation
+  String postOrientation = "grid";
   @override
   void initState() {
     super.initState();
@@ -181,9 +185,58 @@ class _ProfileState extends State<Profile> {
   buildProfilePost() {
     if (isLoadingPost) {
       return circularProgress();
+    } else if (postOrientation == "grid") {
+      List<GridTile>? gridTile = [];
+      posts!.forEach((val) {
+        gridTile.add(
+          GridTile(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: PostTile(val),
+            ),
+          ),
+        );
+      });
+
+      return GridView.count(
+        crossAxisCount: 3,
+        childAspectRatio: 1.0,
+        mainAxisSpacing: 2,
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        children: gridTile,
+      );
+    } else if (postOrientation == "list") {
+      return Column(
+        children: posts!,
+      );
     }
-    return Column(
-      children: posts!,
+  }
+
+  setPostOrientation(String orientation) {
+    setState(() {
+      this.postOrientation = orientation;
+    });
+  }
+
+  buildTooglePostOrientation() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        IconButton(
+            onPressed: () => setPostOrientation("grid"),
+            icon: Icon(Icons.grid_on)),
+        Container(
+          width: 2.0,
+          height: 40,
+          decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor,
+              borderRadius: BorderRadius.circular(10.0)),
+        ),
+        IconButton(
+            onPressed: () => setPostOrientation("list"),
+            icon: Icon(Icons.list)),
+      ],
     );
   }
 
@@ -201,6 +254,7 @@ class _ProfileState extends State<Profile> {
               color: Colors.blue,
             ),
           ),
+          buildTooglePostOrientation(),
           buildProfilePost(),
         ],
       ),
