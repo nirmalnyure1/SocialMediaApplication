@@ -1,6 +1,9 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:socialapp/models/user.dart';
+import 'package:socialapp/screens/comments.dart';
 import 'package:socialapp/screens/homePage.dart';
 import 'package:socialapp/widgets/custom_image.dart';
 import 'package:socialapp/widgets/progressbar.dart';
@@ -62,6 +65,7 @@ class Post extends StatefulWidget {
 }
 
 class _PostState extends State<Post> {
+  final String? currentUserId = currentUser?.id;
   final String? postId;
   final String? ownerId;
   final String? userName;
@@ -70,16 +74,19 @@ class _PostState extends State<Post> {
   final String? location;
   int? likeCounts;
   Map? likes;
+  bool? isLiked = false;
+  bool showHeart = false;
 
-  _PostState(
-      {this.postId,
-      this.ownerId,
-      this.userName,
-      this.description,
-      this.mediaUrl,
-      this.location,
-      this.likes,
-      this.likeCounts});
+  _PostState({
+    this.postId,
+    this.ownerId,
+    this.userName,
+    this.description,
+    this.mediaUrl,
+    this.location,
+    this.likes,
+    this.likeCounts,
+  });
 
   buildPostHeader() {
     return FutureBuilder(
@@ -122,10 +129,52 @@ class _PostState extends State<Post> {
     );
   }
 
+  handleLikePost() {
+    print("hello buddy");
+    bool _isLiked = likes![currentUserId] == true;
+    if (_isLiked) {
+      postReference
+          .doc(ownerId)
+          .collection("userPost")
+          .doc(postId)
+          .update({"likes.$currentUserId": false});
+      setState(() {
+        likeCounts = likeCounts! - 1;
+        //is liked is user to change the favorite color
+        isLiked = false;
+        likes![currentUserId] = false;
+      });
+    } else if (!isLiked!) {
+
+      postReference
+          .doc(ownerId)
+          .collection("userPost")
+          .doc(postId)
+          .update({"likes.$currentUserId": true});
+          addToActivityFeed();
+      setState(() {
+        likeCounts = likeCounts! + 1;
+        //is liked is user to change the favorite color
+        isLiked = true;
+        likes![currentUserId] = true;
+        showHeart = true;
+      });
+      Timer(Duration(milliseconds: 500), () {
+        setState(() {
+          showHeart = false;
+        });
+      });
+    }
+  }
+
+  addToActivityFeed(){
+    
+  }
+
   buildPostImage() {
     return GestureDetector(
       onDoubleTap: () {
-        print("image is tapped");
+        handleLikePost();
       },
       child: Stack(
         alignment: Alignment.center,
@@ -133,6 +182,35 @@ class _PostState extends State<Post> {
           Padding(
               padding: const EdgeInsets.all(10.0),
               child: cachedNetworkImage(mediaUrl)),
+          showHeart
+              ? TweenAnimationBuilder(
+                  duration: Duration(milliseconds: 500),
+                  tween: Tween(begin: 4.0, end: 50.0),
+                  curve: Curves.easeOut,
+                  builder:
+                      (BuildContext context, dynamic value, Widget? child) {
+                    return Container(
+                      height: 100,
+                      width: 100,
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade50,
+                        borderRadius: BorderRadius.circular(100),
+                        boxShadow: [
+                          BoxShadow(
+                              color: Colors.red.shade50,
+                              offset: Offset(0.0, 1.0),
+                              blurRadius: 50.0)
+                        ],
+                      ),
+                      child: Icon(
+                        Icons.favorite,
+                        color: Colors.red,
+                        size: value,
+                      ),
+                    );
+                  },
+                )
+              : Text(""),
         ],
       ),
     );
@@ -147,16 +225,12 @@ class _PostState extends State<Post> {
           Row(
             children: <Widget>[
               IconButton(
-                onPressed: () {
-                  print("love pressed");
-                },
-                icon: Icon(Icons.favorite),
+                onPressed: handleLikePost,
+                icon: Icon(isLiked! ? Icons.favorite : Icons.favorite_border),
                 color: Colors.red,
               ),
               IconButton(
-                  onPressed: () {
-                    print("comment pressed");
-                  },
+                  onPressed: ()=>showComment(context:context ,postId:postId,mediaUrl: mediaUrl,ownerId: ownerId),
                   icon: Icon(Icons.chat),
                   color: Colors.blue),
             ],
@@ -170,6 +244,7 @@ class _PostState extends State<Post> {
 
   @override
   Widget build(BuildContext context) {
+    isLiked = (likes![currentUserId]) == true;
     return Column(
       children: [
         buildPostHeader(),
@@ -179,4 +254,13 @@ class _PostState extends State<Post> {
       ],
     );
   }
+}
+showComment( {context, String? postId,String ? ownerId,String? mediaUrl}){
+  Navigator.push(context, MaterialPageRoute(builder: (context){
+    return Comments(
+      postId:postId,
+      postOwnerId:ownerId,
+      postMediaUrl:mediaUrl,
+    );
+  }));
 }

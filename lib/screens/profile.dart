@@ -185,6 +185,16 @@ class _ProfileState extends State<Profile> {
   buildProfilePost() {
     if (isLoadingPost) {
       return circularProgress();
+    } else if (posts!.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.all(30),
+        child: Container(
+          child: Center(
+            child: Text("no post avilable \n   upload post",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
+          ),
+        ),
+      );
     } else if (postOrientation == "grid") {
       List<GridTile>? gridTile = [];
       posts!.forEach((val) {
@@ -224,18 +234,20 @@ class _ProfileState extends State<Profile> {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         IconButton(
-            onPressed: () => setPostOrientation("grid"),
-            icon: Icon(Icons.grid_on)),
-        Container(
-          width: 2.0,
-          height: 40,
-          decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor,
-              borderRadius: BorderRadius.circular(10.0)),
+          onPressed: () => setPostOrientation("grid"),
+          icon: Icon(Icons.grid_on),
+          color: postOrientation == "grid"
+              ? Theme.of(context).primaryColor
+              : Colors.grey,
         ),
+     
         IconButton(
-            onPressed: () => setPostOrientation("list"),
-            icon: Icon(Icons.list)),
+          onPressed: () => setPostOrientation("list"),
+          icon: Icon(Icons.list),
+          color: postOrientation == "list"
+              ? Theme.of(context).primaryColor
+              : Colors.grey,
+        ),
       ],
     );
   }
@@ -247,14 +259,15 @@ class _ProfileState extends State<Profile> {
       body: ListView(
         children: [
           buildProfileHeader(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: Divider(
-              height: 10.0,
-              color: Colors.blue,
-            ),
+          Divider(
+            height: 10.0,
+            color: Colors.grey,
           ),
           buildTooglePostOrientation(),
+          Divider(
+            height: 10.0,
+            color: Colors.grey,
+          ),
           buildProfilePost(),
         ],
       ),

@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:socialapp/models/user.dart';
@@ -14,6 +13,8 @@ final firebase_storage.Reference ref =
     firebase_storage.FirebaseStorage.instance.ref();
 final userReference = FirebaseFirestore.instance.collection('users');
 final postReference = FirebaseFirestore.instance.collection('post');
+final  commentReference=FirebaseFirestore.instance.collection("comment");
+final activityFeedReference=FirebaseFirestore.instance.collection("activityFeed");
 final GoogleSignIn googleSignIn = GoogleSignIn();
 final DateTime timeStamp = DateTime.now();
 //currentUser store the user data which will be user all over the application
