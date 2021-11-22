@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:socialapp/models/user.dart';
 import 'package:socialapp/screens/edit_profile.dart';
 import 'package:socialapp/screens/homePage.dart';
-import 'package:socialapp/screens/post_screen.dart';
+import 'package:socialapp/screens/post.dart';
 import 'package:socialapp/widgets/customAppBar.dart';
 import 'package:socialapp/widgets/post_tile.dart';
 import 'package:socialapp/widgets/progressbar.dart';

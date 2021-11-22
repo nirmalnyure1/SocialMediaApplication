@@ -14,7 +14,7 @@ final firebase_storage.Reference ref =
 final userReference = FirebaseFirestore.instance.collection('users');
 final postReference = FirebaseFirestore.instance.collection('post');
 final  commentReference=FirebaseFirestore.instance.collection("comment");
-final activityFeedReference=FirebaseFirestore.instance.collection("activityFeed");
+final activityFeedReference=FirebaseFirestore.instance.collection("feed");
 final GoogleSignIn googleSignIn = GoogleSignIn();
 final DateTime timeStamp = DateTime.now();
 //currentUser store the user data which will be user all over the application
