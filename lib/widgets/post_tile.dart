@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:socialapp/screens/post_screen.dart';
+import 'package:socialapp/screens/post.dart';
 import 'package:socialapp/widgets/custom_image.dart';
 
 class PostTile extends StatelessWidget {
