@@ -168,11 +168,7 @@ class _UploadState extends State<Upload> {
   }
 
   getUserLocation() async {
-    // LocationPermission permission;
-    // permission = await Geolocator.checkPermission();
-    // if(permission==LocationPermission.denied){
-    //   permission = await Geolocator.requestPermission();
-    // }
+  
     try {
       Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.medium);
