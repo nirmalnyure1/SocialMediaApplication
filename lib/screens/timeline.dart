@@ -1,121 +1,138 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:socialapp/widgets/customAppBar.dart';
-import 'package:socialapp/widgets/progressbar.dart';
 
-//FirebaseFirestore firestoreinstance = FirebaseFirestore.instance;
-final userData = FirebaseFirestore.instance.collection('users');
+import 'package:socialapp/screens/homePage.dart';
+import 'package:socialapp/widgets/post.dart';
+import 'package:socialapp/screens/search.dart';
+
+import '../models/user.dart';
+import '../widgets/header.dart';
+import '../widgets/progressbar.dart';
+
+final usersRef = FirebaseFirestore.instance.collection('users');
 
 class Timeline extends StatefulWidget {
+  final UserModel? currentUser;
+
+  Timeline({this.currentUser});
+
   @override
   _TimelineState createState() => _TimelineState();
 }
 
 class _TimelineState extends State<Timeline> {
-  List? user = [];
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  List<Post> posts = [];
+  List<String> followingList = [];
+
   @override
   void initState() {
     super.initState();
+
+    getTimeline();
+    getFollowing();
   }
 
-  // createUser() {
-  //   userData.doc('abcdekjl').set({
-  //     "username": 'ram',
-  //     'postCount': 2,
-  //     "isAdmin": true,
-  //   });
-  // }
+  getTimeline() async {
+    QuerySnapshot snapshot = await postReference
+        .doc(widget.currentUser!.id)
+        .collection('timelinePosts')
+        .orderBy('timestamp', descending: true)
+        .get();
+    List<Post> posts =
+        snapshot.docs.map((doc) => Post.fromDocument(doc)).toList();
+    setState(() {
+      this.posts = posts;
+    });
+  }
 
-  // updateUser() async {
-  //   final DocumentSnapshot user = await userData.doc('abcdef').get();
-  //   if (user.exists) {
-  //     user.reference.update({
-  //       "username": 'ram sita',
-  //       'postCount': 2,
-  //       "isAdmin": true,
-  //     });
-  //   } else {
-  //     print('user not exist');
-  //   }
-  // }
+  getFollowing() async {
+    QuerySnapshot snapshot = await followingRef
+        .doc(currentUser!.id)
+        .collection('userFollowing')
+        .get();
 
-  // deleteUser() async {
-  //   final DocumentSnapshot user = await userData.doc('abcdef').get();
-  //   if (user.exists) {
-  //     user.reference.delete();
-  //   } else {
-  //     print('user not exist');
-  //   }
-  // }
+    if (snapshot.docs.isNotEmpty) {
+      setState(() {
+        followingList = snapshot.docs.map((doc) => doc.id).toList();
+      });
+    }
+  }
 
-  // getUser() async {
-  //   final QuerySnapshot snapshot = await userData.get();
-  //   setState(() {
-  //     user = snapshot.docs;
-  //   });
-  // }
+  buildTimeline() {
+    if (posts == null) {
+      return circularProgress();
+    } else if (posts.isEmpty) {
+      return buildUsersToFollow();
+    } else {
+      return ListView(children: posts);
+    }
+  }
 
-  // getDocument() async {
-  //   try {
-  //     await userData.get().then((snapshot) {
-  //       snapshot.docs.forEach((result) {
-  //         print(result.data());
-  //         print(result.id);
-  //       });
-  //     });
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  // }
-
-  // getUserByRole() async {
-  //   final QuerySnapshot doc = await userData
-  //       .where("postCount", isGreaterThan: 4)
-  //       .where("username", isEqualTo: 'janu')
-  //       .get();
-  //   doc.docs.forEach((snapshot) {
-  //     print(snapshot.data());
-  //   });
-  //
-  //   // doc.data();
-  // }
-  //
-  // getDocumentById() async {
-  //   final id = 'OEFvlcWGVNJef1UcWKZF';
-  //   final DocumentSnapshot doc = await userData.doc(id).get();
-  //   print(doc.exists);
-  // }
-  //
-  // getUsersByOrder() async {
-  //   final QuerySnapshot document =
-  //       await userData.orderBy("postCount", descending: true).get();
-  //   document.docs.forEach((element) {
-  //     print(element.data());
-  //   });
-  // }
+  buildUsersToFollow() {
+    return StreamBuilder(
+      stream:
+          usersRef.orderBy('timestamp', descending: true).limit(30).snapshots(),
+      builder: (context, AsyncSnapshot<dynamic>? snapshot) {
+        if (!snapshot!.hasData) {
+          return circularProgress();
+        }
+        List<UserResult> userResults = [];
+        snapshot.data.docs.forEach((doc) {
+          UserModel user = UserModel.fromDocument(doc);
+          final bool isAuthUser = currentUser?.id == user.id;
+          final bool isFollowingUser = followingList.contains(user.id);
+          // remove auth user from recommended list
+          if (isAuthUser) {
+            return;
+          } else if (isFollowingUser) {
+            return;
+          } else {
+            UserResult userResult = UserResult(user);
+            userResults.add(userResult);
+          }
+        });
+        return Container(
+          color: Theme.of(context).accentColor.withOpacity(0.2),
+          child: Column(
+            children: <Widget>[
+              Container(
+                padding: EdgeInsets.all(12.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Icon(
+                      Icons.person_add,
+                      color: Theme.of(context).primaryColor,
+                      size: 30.0,
+                    ),
+                    SizedBox(
+                      width: 8.0,
+                    ),
+                    Text(
+                      "Users to Follow",
+                      style: TextStyle(
+                        color: Theme.of(context).primaryColor,
+                        fontSize: 30.0,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Column(children: userResults),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(context) {
     return Scaffold(
-        appBar: customAppBar(context, ifAppTitle: true),
-        body: StreamBuilder<QuerySnapshot>(
-          stream: userData.snapshots(),
-          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-            if (!snapshot.hasData) {
-              return circularProgress();
-            } else {
-              final List<DocumentSnapshot> documents = snapshot.data.docs;
-              return ListView(
-                  children: documents
-                      .map((doc) => Card(
-                            child: ListTile(
-                              title: Text(doc['username']),
-                              subtitle: Text(doc['postCount'].toString()),
-                            ),
-                          ))
-                      .toList());
-            }
-          },
-        ));
+        key: _scaffoldKey,
+        appBar: header(context, isAppTitle: true),
+        body: RefreshIndicator(
+            onRefresh: () => getTimeline(), child: buildTimeline()));
   }
 }

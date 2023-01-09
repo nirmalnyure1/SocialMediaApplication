@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:socialapp/models/user.dart';
+import 'package:socialapp/screens/activity_feed.dart';
 import 'package:socialapp/screens/homePage.dart';
 
 class Search extends StatefulWidget {
@@ -89,6 +90,8 @@ class _SearchState extends State<Search> {
         });
   }
 
+  bool get wantKeepAlive => true;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -111,7 +114,7 @@ class UserResult extends StatelessWidget {
         children: [
           GestureDetector(
             onTap: () {
-              print("tapped");
+              showProfile(context, profileId: user.id);
             },
             child: ListTile(
               leading: CircleAvatar(

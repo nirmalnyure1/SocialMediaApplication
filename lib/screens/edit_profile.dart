@@ -4,6 +4,8 @@ import 'package:socialapp/screens/homePage.dart';
 import 'package:socialapp/widgets/progressbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../utils/snackbar.dart';
+
 class EditProfile extends StatefulWidget {
   final String? currentUserId;
   EditProfile({this.currentUserId});
@@ -89,8 +91,9 @@ class _EditProfileState extends State<EditProfile> {
         "displayName": nameController.text,
         "bio": bioController.text,
       });
-      SnackBar snackbar = SnackBar(content: Text("profile updated"));
-      _scaffoldkey.currentState!.showSnackBar(snackbar);
+      // SnackBar snackbar = SnackBar(content: Text("profile updated"));
+      // _scaffoldkey.currentState!.
+      showSnackBar(context,"profile updated");
     }
   }
 

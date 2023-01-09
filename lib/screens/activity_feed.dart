@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:socialapp/screens/homePage.dart';
+import 'package:socialapp/screens/post_screen.dart';
+import 'package:socialapp/screens/profile.dart';
 import 'package:socialapp/utils/colors.dart';
 import 'package:socialapp/widgets/customAppBar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -40,9 +42,7 @@ class _ActivityFeedState extends State<ActivityFeed> {
             if (!snapshot.hasData) {
               return circularProgress();
             }
-            return ListView(
-              children: snapshot.data,
-            );
+            return ListView(children: snapshot.data);
           },
         ),
       ),
@@ -85,10 +85,25 @@ class ActivityFeedItem extends StatelessWidget {
       commentData: doc["commentData"],
     );
   }
-  configureMediaPreview() {
+
+  showPost(context) {
+    if (postId != null && userId != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PostScreen(postId: postId!, userId: userId!),
+        ),
+      );
+    } else {
+      print(
+          "--------------post id is null or userId is null-------------------");
+    }
+  }
+
+  configureMediaPreview(context) {
     if (type == "like" || type == "comment") {
       mediaPreview = GestureDetector(
-        onTap: () => print("media preview pressed"),
+        onTap: () => showPost(context),
         child: Container(
           height: 50,
           width: 50,
@@ -120,55 +135,80 @@ class ActivityFeedItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    configureMediaPreview();
-    return Padding(
-      padding: EdgeInsets.all(5.0),
-      child: Container(
+    configureMediaPreview(context);
+    return Container(
+        padding: EdgeInsets.only(left: 5, right: 5, top: 15, bottom: 15),
+        margin: EdgeInsets.only(left: 10, right: 10, bottom: 5, top: 5),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10.0),
           color: MyColors.color2,
         ),
-        child: ListTile(
-            title: GestureDetector(
-              onTap: () => print("title pressed"),
-              child: RichText(
-                overflow: TextOverflow.ellipsis,
-                text: TextSpan(
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: MyColors.textBlack,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(100.0),
+                    child: CachedNetworkImage(
+                      imageUrl: userProfileImage.toString(),
+                      height: 60,
+                      width: 60,
                     ),
-                    children: [
-                      TextSpan(
-                        text: username,
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      TextSpan(
-                        text: "  $activityItemText",
-                      ),
-                    ]),
+                  ),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "$username",
+                          style: TextStyle(
+                              fontSize: 15,
+                              color: MyColors.textBlack,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          "$activityItemText sdjflasjdflsjdfljd",
+                          // maxLines: 5,
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: MyColors.textBlack,
+                          ),
+                        ),
+                        Text(
+                          timeago.format(timestamp!.toDate()),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
-            leading: Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(50.0),
-                child: CachedNetworkImage(
-                  imageUrl: userProfileImage.toString(),
-                ),
-              ),
-            ),
-            subtitle: Text(
-              timeago.format(timestamp!.toDate()),
-              overflow: TextOverflow.ellipsis,
-            ),
-            trailing: Container(
+            Container(
                 decoration: BoxDecoration(
                   border: Border.all(color: MyColors.color1, width: 3.0),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: mediaPreview)),
+                child: mediaPreview),
+          ],
+        ));
+  }
+}
+
+showProfile(BuildContext context, {String? profileId}) {
+  if (profileId != null) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Profile(
+          profileId: profileId,
+        ),
       ),
     );
+  } else {
+    print("--------profile id is null--------");
   }
 }

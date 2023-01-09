@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:socialapp/models/user.dart';
 import 'package:socialapp/screens/edit_profile.dart';
 import 'package:socialapp/screens/homePage.dart';
-import 'package:socialapp/screens/post.dart';
+import 'package:socialapp/widgets/post.dart';
 import 'package:socialapp/widgets/customAppBar.dart';
 import 'package:socialapp/widgets/post_tile.dart';
 import 'package:socialapp/widgets/progressbar.dart';
@@ -21,6 +21,10 @@ class _ProfileState extends State<Profile> {
   final String currentUserId = currentUser!.id.toString();
   bool isLoadingPost = false;
   int postCount = 0;
+   bool isFollowing = false;
+  bool isLoading = false;
+  int followerCount = 0;
+  int followingCount = 0;
   List<Post>? posts = [];
 
   //post orientation
@@ -29,6 +33,41 @@ class _ProfileState extends State<Profile> {
   void initState() {
     super.initState();
     getProfilePost();
+       
+    getFollowers();
+    getFollowing();
+    checkIfFollowing();
+  }
+
+    checkIfFollowing() async {
+    DocumentSnapshot doc = await followersRef
+        .doc(widget.profileId)
+        .collection('userFollowers')
+        .doc(currentUserId)
+        .get();
+    setState(() {
+      isFollowing = doc.exists;
+    });
+  }
+
+   getFollowers() async {
+    QuerySnapshot snapshot = await followersRef
+        .doc(widget.profileId)
+        .collection('userFollowers')
+        .get();
+    setState(() {
+      followerCount = snapshot.docs.length;
+    });
+  }
+
+  getFollowing() async {
+    QuerySnapshot snapshot = await followingRef
+        .doc(widget.profileId)
+        .collection('userFollowing')
+        .get();
+    setState(() {
+      followingCount = snapshot.docs.length;
+    });
   }
 
   getProfilePost() async {
@@ -92,9 +131,21 @@ class _ProfileState extends State<Profile> {
   buildProfileButton() {
     bool isProfileOwner = currentUserId == widget.profileId;
     if (isProfileOwner) {
-      return buildButton(text: "Edit  Profile", function: editProfile);
+      return buildButton(
+        text: "Edit Profile",
+        function: editProfile,
+      );
+    } else if (isFollowing) {
+      return buildButton(
+        text: "Unfollow",
+        function: handleUnfollowUser,
+      );
+    } else if (!isFollowing) {
+      return buildButton(
+        text: "Follow",
+        function: handleFollowUser,
+      );
     }
-    return Text("profile button");
   }
 
   //to show post level and count
@@ -116,6 +167,81 @@ class _ProfileState extends State<Profile> {
         )
       ],
     );
+  }
+
+   handleUnfollowUser() {
+    setState(() {
+      isFollowing = false;
+    });
+    // remove follower
+    followersRef
+        .doc(widget.profileId)
+        .collection('userFollowers')
+        .doc(currentUserId)
+        .get()
+        .then((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
+    // remove following
+    followingRef
+        .doc(currentUserId)
+        .collection('userFollowing')
+        .doc(widget.profileId)
+        .get()
+        .then((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
+    // delete activity feed item for them
+    activityFeedReference
+        .doc(widget.profileId)
+        .collection('feedItems')
+        .doc(currentUserId)
+        .get()
+        .then((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
+  }
+
+   handleFollowUser() {
+    setState(() {
+      isFollowing = true;
+    });
+
+    if(currentUser!=null){
+
+    // Make auth user follower of THAT user (update THEIR followers collection)
+    followersRef
+        .doc(widget.profileId)
+        .collection('userFollowers')
+        .doc(currentUserId)
+        .set({});
+    // Put THAT user on YOUR following collection (update your following collection)
+    followingRef
+        .doc(currentUserId)
+        .collection('userFollowing')
+        .doc(widget.profileId)
+        .set({});
+    // add activity feed item for that user to notify about new follower (us)
+    activityFeedReference
+        .doc(widget.profileId)
+        .collection('feedItems')
+        .doc(currentUserId)
+        .set({
+      "type": "follow",
+      "ownerId": widget.profileId,
+      "username": currentUser?.username,
+      "userId": currentUserId,
+      "userProfileImg": currentUser?.photoUrl,
+      "timestamp": timestamp,
+      "mediaUrl":""
+    });
+    }
   }
 
 //to show profile header

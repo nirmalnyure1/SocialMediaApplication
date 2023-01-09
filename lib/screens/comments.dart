@@ -43,7 +43,7 @@ class CommentsState extends State<Comments> {
           .doc(postId)
           .collection("comments")
           .orderBy("timestamp", descending: false)
-          .snapshots(),
+          .snapshots(), 
       builder: (context, AsyncSnapshot<dynamic>? snapshot) {
         if (!snapshot!.hasData) {
           return circularProgress();
