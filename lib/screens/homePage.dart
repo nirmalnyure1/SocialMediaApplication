@@ -6,20 +6,26 @@ import 'package:socialapp/screens/activity_feed.dart';
 import 'package:socialapp/screens/create_account.dart';
 import 'package:socialapp/screens/profile.dart';
 import 'package:socialapp/screens/search.dart';
+import 'package:socialapp/screens/timeline.dart';
 import 'package:socialapp/screens/upload.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
-final firebase_storage.Reference ref =
+final firebase_storage.Reference storageReference =
     firebase_storage.FirebaseStorage.instance.ref();
 final userReference = FirebaseFirestore.instance.collection('users');
 final postReference = FirebaseFirestore.instance.collection('post');
-final  commentReference=FirebaseFirestore.instance.collection("comment");
-final activityFeedReference=FirebaseFirestore.instance.collection("feed");
+final commentReference = FirebaseFirestore.instance.collection("comment");
+final activityFeedReference = FirebaseFirestore.instance.collection("feed");
+final followersRef = FirebaseFirestore.instance.collection('followers');
+final followingRef = FirebaseFirestore.instance.collection('following');
+final timelineRef = FirebaseFirestore.instance.collection('timeline');
 final GoogleSignIn googleSignIn = GoogleSignIn();
 final DateTime timeStamp = DateTime.now();
 //currentUser store the user data which will be user all over the application
 //UserModel is the model that we created for storing all the data
 UserModel? currentUser;
+final DateTime timestamp = DateTime.now();
+
 
 class HomePage extends StatefulWidget {
   @override
@@ -39,22 +45,22 @@ class _HomePageState extends State<HomePage> {
     );
     super.initState();
     googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
-      handlingSignIn(account!);
+      handlingSignIn(account);
     }, onError: (error) {
       print('the error occur while signin  is $error');
     });
     //if user is already login the this will directly move to homepage
     googleSignIn.signInSilently(suppressErrors: false).then((account) {
-      handlingSignIn(account!);
+      handlingSignIn(account);
     }).catchError((err) {
       print('Error signing in: $err');
     });
   }
 
   //to check user is logedIn or not
-  handlingSignIn(GoogleSignInAccount accountt) {
+  handlingSignIn(GoogleSignInAccount? accountt) async {
     if (accountt != null) {
-      createUserInFlutterFirestore();
+      await createUserInFlutterFirestore();
       print('User sign in: $accountt');
       setState(() {
         accountAuth = true;
@@ -137,9 +143,11 @@ class _HomePageState extends State<HomePage> {
   onTap(int index) {
     setState(() {
       this.pageIndex = index;
-      // pageController.jumpToPage(pageIndex);
-      pageController.animateToPage(pageIndex,
-          duration: Duration(milliseconds: 200), curve: Curves.easeInOut);
+      pageController.jumpToPage(
+        pageIndex,
+      );
+      // pageController.animateToPage(pageIndex,
+      //     duration: Duration(milliseconds: 200), curve: Curves.easeInOut);
     });
   }
 
@@ -149,13 +157,15 @@ class _HomePageState extends State<HomePage> {
         child: Scaffold(
       body: PageView(
         children: [
-          // Timeline(),
-          TextButton(
-            onPressed: () {
-              signOut();
-            },
-            child: Text('signout'),
+          Timeline(
+            currentUser: currentUser,
           ),
+          // TextButton(
+          //   onPressed: () {
+          //     signOut();
+          //   },
+          //   child: Text('signout'),
+          // ),
           ActivityFeed(),
           Upload(currentUser: currentUser),
           Search(),
@@ -163,6 +173,7 @@ class _HomePageState extends State<HomePage> {
         ],
         controller: pageController,
         onPageChanged: onPagechange,
+        physics: NeverScrollableScrollPhysics(),
       ),
       bottomNavigationBar: BottomNavigationBar(
         iconSize: 30,
@@ -175,7 +186,7 @@ class _HomePageState extends State<HomePage> {
         unselectedItemColor: Colors.grey,
         items: [
           BottomNavigationBarItem(
-              icon: Icon(Icons.feed_rounded), label: "timeline"),
+              icon: Icon(Icons.feed_rounded), label: "home"),
           BottomNavigationBarItem(
               icon: Icon(Icons.local_activity_rounded), label: "activityfeed"),
           BottomNavigationBarItem(

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:socialapp/utils/snackbar.dart';
 import 'package:socialapp/widgets/customAppBar.dart';
 
 class CreateAccount extends StatefulWidget {
@@ -21,7 +22,8 @@ class _CreateAccountState extends State<CreateAccount> {
         content: Text('welcome $username!'),
       );
 
-      _scaffoldKey.currentState!.showSnackBar(snackBar);
+      // _scaffoldKey.currentState!.showSnackBar(snackBar);
+      showSnackBar(context, "welcome $username");
       Timer(Duration(seconds: 2), () {
         Navigator.pop(context, username);
       });

@@ -128,7 +128,8 @@ class _UploadState extends State<Upload> {
   Future<String> upLoadImage(imageFile) async {
     // File file = File(imageFile);
 
-    var data = await ref.child('"post_$postId.jpg"').putFile(imageFile);
+    var data =
+        await storageReference.child('"post_$postId.jpg"').putFile(imageFile);
     print("sucess");
     String downloadUrl = await data.ref.getDownloadURL();
     return downloadUrl;
@@ -168,7 +169,6 @@ class _UploadState extends State<Upload> {
   }
 
   getUserLocation() async {
-  
     try {
       Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.medium);
